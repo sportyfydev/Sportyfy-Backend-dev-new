@@ -64,11 +64,14 @@ async def catch_exceptions_middleware(request: Request, call_next):
 import os
 default_origins = [
     "http://localhost:5173",
-    "https://sportyfy-frontend-0yth.onrender.com" # Aktuelles Frontend
+    "https://sportyfy-frontend-0yth.onrender.com",
+    "https://sportyfy-frontend-du2z.onrender.com"
 ]
 allowed_origins_str = os.environ.get("ALLOWED_ORIGINS", "")
 if allowed_origins_str:
-    allowed_origins = [o.strip() for o in allowed_origins_str.split(",") if o.strip()]
+    # Erlaube sowohl die env-Variable als auch die Defaults (Sicherheitsnetz)
+    env_origins = [o.strip() for o in allowed_origins_str.split(",") if o.strip()]
+    allowed_origins = list(set(default_origins + env_origins))
 else:
     allowed_origins = default_origins
 
