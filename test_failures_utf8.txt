@@ -1,0 +1,355 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.2, pytest-8.2.0, pluggy-1.6.0 -- C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Tobias SIegel\SportyFY-antigravity\backend
+plugins: anyio-4.12.1
+collecting ... collected 49 items
+
+tests/test_database.py::test_get_supabase_singleton PASSED               [  2%]
+tests/test_database.py::test_get_supabase_missing_credentials PASSED     [  4%]
+tests/test_database.py::test_verify_connection PASSED                    [  6%]
+tests/test_dependencies.py::test_get_current_user_dev_bypass PASSED      [  8%]
+tests/test_dependencies.py::test_get_current_user_valid_token PASSED     [ 10%]
+tests/test_dependencies.py::test_get_current_user_invalid_token PASSED   [ 12%]
+tests/test_dependencies.py::test_require_role_success PASSED             [ 14%]
+tests/test_dependencies.py::test_require_role_forbidden PASSED           [ 16%]
+tests/test_feature_content_library.py::test_get_exercises_success FAILED [ 18%]
+tests/test_feature_content_library.py::test_get_marketplace_templates_success FAILED [ 20%]
+tests/test_feature_content_library.py::test_get_exercises_error FAILED   [ 22%]
+tests/test_feature_kpi_tracking.py::test_get_kpi_summary PASSED          [ 24%]
+tests/test_feature_kpi_tracking.py::test_get_exercise_progress PASSED    [ 26%]
+tests/test_feature_marketplace.py::test_list_marketplace_items_success PASSED [ 28%]
+tests/test_feature_marketplace.py::test_get_marketplace_item_success PASSED [ 30%]
+tests/test_feature_marketplace.py::test_create_marketplace_item_success FAILED [ 32%]
+tests/test_feature_marketplace.py::test_create_order_success PASSED      [ 34%]
+tests/test_feature_metrics.py::test_log_body_metric_success PASSED       [ 36%]
+tests/test_feature_metrics.py::test_get_body_metrics_success PASSED      [ 38%]
+tests/test_feature_metrics.py::test_get_user_goals_skeleton_fallback PASSED [ 40%]
+tests/test_feature_metrics.py::test_upsert_user_goals_success FAILED     [ 42%]
+tests/test_feature_metrics.py::test_get_user_preferences_fallback PASSED [ 44%]
+tests/test_feature_metrics.py::test_update_user_preferences_success PASSED [ 46%]
+tests/test_feature_training_ai.py::test_adapt_plan_decrease_intensity FAILED [ 48%]
+tests/test_feature_training_ai.py::test_adapt_plan_maintain_high_rpe FAILED [ 51%]
+tests/test_feature_training_ai.py::test_adapt_plan_increase_intensity FAILED [ 53%]
+tests/test_feature_training_ai.py::test_adapt_plan_maintain_normal FAILED [ 55%]
+tests/test_feature_training_sessions.py::test_create_training_session_success PASSED [ 57%]
+tests/test_feature_training_sessions.py::test_get_upcoming_sessions_success PASSED [ 59%]
+tests/test_feature_training_sessions.py::test_instantiate_session_success FAILED [ 61%]
+tests/test_feature_training_sessions.py::test_get_training_session_unauthorized PASSED [ 63%]
+tests/test_feature_training_sessions.py::test_complete_session_success PASSED [ 65%]
+tests/test_feature_training_sessions.py::test_complete_session_invalid_rpe PASSED [ 67%]
+tests/test_feature_training_templates.py::test_create_training_template_success PASSED [ 69%]
+tests/test_feature_training_templates.py::test_list_training_templates_success PASSED [ 71%]
+tests/test_feature_training_templates.py::test_get_training_template_success PASSED [ 73%]
+tests/test_feature_training_templates.py::test_add_template_exercise_unauthorized PASSED [ 75%]
+tests/test_feature_users.py::test_delete_my_account_dev_bypass PASSED    [ 77%]
+tests/test_feature_users.py::test_delete_my_account_success PASSED       [ 79%]
+tests/test_feature_users.py::test_delete_my_account_failure PASSED       [ 81%]
+tests/test_main.py::test_health_check PASSED                             [ 83%]
+tests/test_main.py::test_example_marketplace PASSED                      [ 85%]
+tests/test_main.py::test_example_training_sessions PASSED                [ 87%]
+tests/test_main.py::test_example_training_templates PASSED               [ 89%]
+tests/test_main.py::test_example_kpi_tracking PASSED                     [ 91%]
+tests/test_main.py::test_example_users PASSED                            [ 93%]
+tests/test_test_feature_kpi_tracking.py::test_get_kpi_summary_success PASSED [ 95%]
+tests/test_test_feature_kpi_tracking.py::test_get_exercise_progress_success PASSED [ 97%]
+tests/test_test_feature_kpi_tracking.py::test_get_summary_no_data PASSED [100%]
+
+================================== FAILURES ===================================
+_________________________ test_get_exercises_success __________________________
+
+mock_get_supabase = <MagicMock name='get_supabase' id='1630275075440'>
+
+    @patch("features.feature_content_library.get_supabase")
+    def test_get_exercises_success(mock_get_supabase):
+        """Test retrieving exercises with optional sport filter."""
+        mock_client = MagicMock()
+        mock_get_supabase.return_value = mock_client
+    
+        mock_response = MagicMock()
+        mock_response.data = [
+            {"id": "ex1", "name": "Pushups", "sport": "Fitness", "visibility": "public"},
+            {"id": "ex2", "name": "Squats", "sport": "Fitness", "visibility": "public"}
+        ]
+        # Chain: table().select().eq() (if sport) .execute()
+        mock_client.table().select().eq().execute.return_value = mock_response
+    
+        response = client.get("/api/v1/content/exercises?sport=Fitness")
+    
+        assert response.status_code == 200
+>       assert len(response.json()) == 2
+E       assert 0 == 2
+E        +  where 0 = len([])
+E        +    where [] = <bound method Response.json of <Response [200 OK]>>()
+E        +      where <bound method Response.json of <Response [200 OK]>> = <Response [200 OK]>.json
+
+tests\test_feature_content_library.py:51: AssertionError
+___________________ test_get_marketplace_templates_success ____________________
+
+mock_get_supabase = <MagicMock name='get_supabase' id='1630275016256'>
+
+    @patch("features.feature_content_library.get_supabase")
+    def test_get_marketplace_templates_success(mock_get_supabase):
+        """Test retrieving public marketplace templates."""
+        mock_client = MagicMock()
+        mock_get_supabase.return_value = mock_client
+    
+        mock_response = MagicMock()
+        mock_response.data = [
+            {"id": "t1", "title": "Public Plan", "visibility": "public", "owner_id": "admin"}
+        ]
+        mock_client.table().select().eq().execute.return_value = mock_response
+    
+        response = client.get("/api/v1/content/marketplace/templates")
+    
+        assert response.status_code == 200
+>       assert len(response.json()) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <bound method Response.json of <Response [200 OK]>>()
+E        +      where <bound method Response.json of <Response [200 OK]>> = <Response [200 OK]>.json
+
+tests\test_feature_content_library.py:69: AssertionError
+__________________________ test_get_exercises_error ___________________________
+
+mock_get_supabase = <MagicMock name='get_supabase' id='1630274923712'>
+
+    @patch("features.feature_content_library.get_supabase")
+    def test_get_exercises_error(mock_get_supabase):
+        """Test error handling during exercise retrieval."""
+        mock_client = MagicMock()
+        mock_get_supabase.return_value = mock_client
+        mock_client.table().select().execute.side_effect = Exception("DB Connection Timeout")
+    
+        response = client.get("/api/v1/content/exercises")
+    
+>       assert response.status_code == 500
+E       assert 200 == 500
+E        +  where 200 = <Response [200 OK]>.status_code
+
+tests\test_feature_content_library.py:81: AssertionError
+____________________ test_create_marketplace_item_success _____________________
+
+mock_get_supabase = <MagicMock name='get_supabase' id='1630275494896'>
+
+    @patch("features.feature_marketplace.get_supabase")
+    def test_create_marketplace_item_success(mock_get_supabase):
+        """Test creating a marketplace item with creator role."""
+        # Override the role dependency specifically for this test
+        app.dependency_overrides[require_role(["creator", "platform_admin"])] = lambda: {"id": "creator-uuid"}
+    
+        mock_client = MagicMock()
+        mock_get_supabase.return_value = mock_client
+    
+        mock_response = MagicMock()
+        mock_response.data = [{"id": "new-item-id"}]
+        mock_client.table().insert().execute.return_value = mock_response
+    
+        payload = {"title": "New Program", "price": 29.99}
+        response = client.post("/api/v1/marketplace/", json=payload)
+    
+>       assert response.status_code == 200
+E       assert 403 == 200
+E        +  where 403 = <Response [403 Forbidden]>.status_code
+
+tests\test_feature_marketplace.py:88: AssertionError
+_______________________ test_upsert_user_goals_success ________________________
+
+    def test_upsert_user_goals_success():
+        current_user = {"id": "user-uuid"}
+        mock_supabase = MagicMock()
+        goals_in = UserGoalUpdate(target_weight_kg=75.0)
+    
+        mock_response = MagicMock()
+        mock_response.data = [{"user_id": "user-uuid", "target_weight_kg": 75.0}]
+        mock_supabase.table().upsert().execute.return_value = mock_response
+    
+        result = upsert_user_goals(goals_in=goals_in, current_user=current_user, supabase=mock_supabase)
+    
+        assert result["target_weight_kg"] == 75.0
+>       mock_supabase.table().upsert.assert_called_once()
+
+tests\test_feature_metrics.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <MagicMock name='mock.table().upsert' id='1630274947648'>
+
+    def assert_called_once(self):
+        """assert that the mock was called only once.
+        """
+        if not self.call_count == 1:
+            msg = ("Expected '%s' to have been called once. Called %s times.%s"
+                   % (self._mock_name or 'mock',
+                      self.call_count,
+                      self._calls_repr()))
+>           raise AssertionError(msg)
+E           AssertionError: Expected 'upsert' to have been called once. Called 2 times.
+E           Calls: [call(),
+E            call({'target_weight_kg': 75.0, 'user_id': 'user-uuid'}, on_conflict='user_id'),
+E            call().execute()].
+
+..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:923: AssertionError
+_____________________ test_adapt_plan_decrease_intensity ______________________
+
+    def test_adapt_plan_decrease_intensity():
+        """Test scenario: User failed to hit target reps -> Decrease weight."""
+        payload = {
+            "session_id": "test-sess",
+            "target_weight": 100.0,
+            "actual_reps": 8,
+            "target_reps": 10,
+            "rpe_score": 8
+        }
+        response = client.post("/api/v1/ai/adapt-plan", json=payload)
+    
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_feature_training_ai.py:33: AssertionError
+______________________ test_adapt_plan_maintain_high_rpe ______________________
+
+    def test_adapt_plan_maintain_high_rpe():
+        """Test scenario: User hit reps but RPE is very high -> Maintain weight."""
+        payload = {
+            "session_id": "test-sess",
+            "target_weight": 100.0,
+            "actual_reps": 10,
+            "target_reps": 10,
+            "rpe_score": 9
+        }
+        response = client.post("/api/v1/ai/adapt-plan", json=payload)
+    
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_feature_training_ai.py:49: AssertionError
+_____________________ test_adapt_plan_increase_intensity ______________________
+
+    def test_adapt_plan_increase_intensity():
+        """Test scenario: User hit reps and RPE is low -> Increase intensity."""
+        payload = {
+            "session_id": "test-sess",
+            "target_weight": 100.0,
+            "actual_reps": 10,
+            "target_reps": 10,
+            "rpe_score": 6
+        }
+        response = client.post("/api/v1/ai/adapt-plan", json=payload)
+    
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_feature_training_ai.py:65: AssertionError
+_______________________ test_adapt_plan_maintain_normal _______________________
+
+    def test_adapt_plan_maintain_normal():
+        """Test scenario: Normal execution with balanced RPE -> Maintain."""
+        payload = {
+            "session_id": "test-sess",
+            "target_weight": 100.0,
+            "actual_reps": 10,
+            "target_reps": 10,
+            "rpe_score": 7
+        }
+        response = client.post("/api/v1/ai/adapt-plan", json=payload)
+    
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_feature_training_ai.py:82: AssertionError
+______________________ test_instantiate_session_success _______________________
+
+mock_get_supabase = <MagicMock name='get_supabase' id='1630275064928'>
+
+    @patch("features.feature_training_sessions.get_supabase")
+    def test_instantiate_session_success(mock_get_supabase):
+        """Test creating a session instance from a template with exercises."""
+        mock_client = MagicMock()
+        mock_get_supabase.return_value = mock_client
+    
+        # 1. Mock template fetch
+        mock_template_resp = MagicMock()
+        mock_template_resp.data = {"id": "template-uuid"}
+        mock_client.table().select().eq().single().execute.return_value = mock_template_resp
+    
+        # 2. Mock session insert
+        mock_session_resp = MagicMock()
+        mock_session_resp.data = [{
+            "id": "new-session-uuid",
+            "trainee_id": "test-user-uuid",
+            "created_at": "2026-03-01T00:00:00Z"
+        }]
+        mock_client.table().insert().execute.side_effect = [
+            mock_session_resp, # First call: session header
+            MagicMock(data=[]) # Second call: exercises (we can ignore return here)
+        ]
+    
+        # 3. Mock exercises fetch
+        mock_ex_resp = MagicMock()
+        mock_ex_resp.data = [{"id": "ex-temp-1", "exercise_id": "pushup", "order_index": 0}]
+        mock_client.table().select().eq().execute.return_value = mock_ex_resp
+    
+        response = client.post("/api/v1/sessions/instantiate/template-uuid")
+    
+        assert response.status_code == 200
+        assert response.json()["id"] == "new-session-uuid"
+        # Ensure exercises were inserted (2 inserts total in the function flow)
+>       assert mock_client.table().insert.call_count == 2
+E       AssertionError: assert 3 == 2
+E        +  where 3 = <MagicMock name='get_supabase().table().insert' id='1630276060416'>.call_count
+E        +    where <MagicMock name='get_supabase().table().insert' id='1630276060416'> = <MagicMock name='get_supabase().table()' id='1630274928320'>.insert
+E        +      where <MagicMock name='get_supabase().table()' id='1630274928320'> = <MagicMock name='get_supabase().table' id='1630275072656'>()
+E        +        where <MagicMock name='get_supabase().table' id='1630275072656'> = <MagicMock name='get_supabase()' id='1630275062960'>.table
+
+tests\test_feature_training_sessions.py:119: AssertionError
+============================== warnings summary ===============================
+venv\Lib\site-packages\supabase\_async\auth_client.py:3
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\supabase\_async\auth_client.py:3: DeprecationWarning: The `gotrue` package is deprecated, is not going to receive updates in the future. Please, use `supabase_auth` instead.
+    from gotrue import (
+
+venv\Lib\site-packages\starlette\formparsers.py:12
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\pydantic\_internal\_config.py:284: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_feature_content_library.py::test_get_exercises_success - assert 0 == 2
+ +  where 0 = len([])
+ +    where [] = <bound method Response.json of <Response [200 OK]>>()
+ +      where <bound method Response.json of <Response [200 OK]>> = <Response [200 OK]>.json
+FAILED tests/test_feature_content_library.py::test_get_marketplace_templates_success - assert 0 == 1
+ +  where 0 = len([])
+ +    where [] = <bound method Response.json of <Response [200 OK]>>()
+ +      where <bound method Response.json of <Response [200 OK]>> = <Response [200 OK]>.json
+FAILED tests/test_feature_content_library.py::test_get_exercises_error - assert 200 == 500
+ +  where 200 = <Response [200 OK]>.status_code
+FAILED tests/test_feature_marketplace.py::test_create_marketplace_item_success - assert 403 == 200
+ +  where 403 = <Response [403 Forbidden]>.status_code
+FAILED tests/test_feature_metrics.py::test_upsert_user_goals_success - AssertionError: Expected 'upsert' to have been called once. Called 2 times.
+Calls: [call(),
+ call({'target_weight_kg': 75.0, 'user_id': 'user-uuid'}, on_conflict='user_id'),
+ call().execute()].
+FAILED tests/test_feature_training_ai.py::test_adapt_plan_decrease_intensity - assert 404 == 200
+ +  where 404 = <Response [404 Not Found]>.status_code
+FAILED tests/test_feature_training_ai.py::test_adapt_plan_maintain_high_rpe - assert 404 == 200
+ +  where 404 = <Response [404 Not Found]>.status_code
+FAILED tests/test_feature_training_ai.py::test_adapt_plan_increase_intensity - assert 404 == 200
+ +  where 404 = <Response [404 Not Found]>.status_code
+FAILED tests/test_feature_training_ai.py::test_adapt_plan_maintain_normal - assert 404 == 200
+ +  where 404 = <Response [404 Not Found]>.status_code
+FAILED tests/test_feature_training_sessions.py::test_instantiate_session_success - AssertionError: assert 3 == 2
+ +  where 3 = <MagicMock name='get_supabase().table().insert' id='1630276060416'>.call_count
+ +    where <MagicMock name='get_supabase().table().insert' id='1630276060416'> = <MagicMock name='get_supabase().table()' id='1630274928320'>.insert
+ +      where <MagicMock name='get_supabase().table()' id='1630274928320'> = <MagicMock name='get_supabase().table' id='1630275072656'>()
+ +        where <MagicMock name='get_supabase().table' id='1630275072656'> = <MagicMock name='get_supabase()' id='1630275062960'>.table
+================== 10 failed, 39 passed, 5 warnings in 1.03s ==================

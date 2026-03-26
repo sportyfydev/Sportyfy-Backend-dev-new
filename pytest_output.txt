@@ -1,0 +1,57 @@
+========================== test session starts ===========================
+platform win32 -- Python 3.12.2, pytest-8.2.0, pluggy-1.6.0 -- C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Tobias SIegel\SportyFY-antigravity\backend
+plugins: anyio-4.12.1
+collecting ... collected 2 items
+
+tests/test_feature_kpi_tracking.py::test_get_kpi_summary ERROR: {'detail': 'Failed to fetch KPI summary: {\'code\': \'22P02\', \'details\': None, \'hint\': None, \'message\': \'invalid input syntax for type uuid: "test-user-id"\'}'}
+FAILED
+tests/test_feature_kpi_tracking.py::test_get_exercise_progress ERROR: {'detail': 'Failed to fetch exercise progress: {\'code\': \'22P02\', \'details\': None, \'hint\': None, \'message\': \'invalid input syntax for type uuid: "test-user-id"\'}'}
+FAILED
+
+================================ FAILURES ================================
+__________________________ test_get_kpi_summary __________________________
+
+    def test_get_kpi_summary():
+        response = client.get("/api/v1/kpi/summary")
+        if response.status_code != 200:
+            print("ERROR:", response.json())
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_kpi_tracking.py:70: AssertionError
+_______________________ test_get_exercise_progress _______________________
+
+    def test_get_exercise_progress():
+        response = client.get("/api/v1/kpi/exercise/test-ex")
+        if response.status_code != 200:
+            print("ERROR:", response.json())
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_kpi_tracking.py:81: AssertionError
+============================ warnings summary ============================
+venv\Lib\site-packages\starlette\formparsers.py:12
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+venv\Lib\site-packages\supabase\_async\auth_client.py:3
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\supabase\_async\auth_client.py:3: DeprecationWarning: The `gotrue` package is deprecated, is not going to receive updates in the future. Please, use `supabase_auth` instead.
+    from gotrue import (
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\pydantic\_internal\_config.py:284: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== short test summary info =========================
+FAILED tests/test_feature_kpi_tracking.py::test_get_kpi_summary - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_feature_kpi_tracking.py::test_get_exercise_progress - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+===================== 2 failed, 5 warnings in 1.43s ======================

@@ -1,0 +1,77 @@
+=========================== test session starts ============================
+platform win32 -- Python 3.12.2, pytest-8.2.0, pluggy-1.6.0 -- C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Tobias SIegel\SportyFY-antigravity\backend
+plugins: anyio-4.12.1
+collecting ... collected 52 items
+
+tests/test_database.py::test_get_supabase_singleton PASSED            [  1%]
+tests/test_database.py::test_get_supabase_missing_credentials PASSED  [  3%]
+tests/test_database.py::test_verify_connection PASSED                 [  5%]
+tests/test_dependencies.py::test_get_current_user_dev_bypass PASSED   [  7%]
+tests/test_dependencies.py::test_get_current_user_valid_token PASSED  [  9%]
+tests/test_dependencies.py::test_get_current_user_invalid_token PASSED [ 11%]
+tests/test_dependencies.py::test_require_role_success PASSED          [ 13%]
+tests/test_dependencies.py::test_require_role_forbidden PASSED        [ 15%]
+tests/test_feature_content_library.py::test_get_exercises_success PASSED [ 17%]
+tests/test_feature_content_library.py::test_get_marketplace_templates_success PASSED [ 19%]
+tests/test_feature_content_library.py::test_get_exercises_error PASSED [ 21%]
+tests/test_feature_kpi_tracking.py::test_get_kpi_summary PASSED       [ 23%]
+tests/test_feature_kpi_tracking.py::test_get_exercise_progress PASSED [ 25%]
+tests/test_feature_marketplace.py::test_list_marketplace_items_success PASSED [ 26%]
+tests/test_feature_marketplace.py::test_get_marketplace_item_success PASSED [ 28%]
+tests/test_feature_marketplace.py::test_create_marketplace_item_success PASSED [ 30%]
+tests/test_feature_marketplace.py::test_create_order_success PASSED   [ 32%]
+tests/test_feature_metrics.py::test_log_body_metric_success PASSED    [ 34%]
+tests/test_feature_metrics.py::test_get_body_metrics_success PASSED   [ 36%]
+tests/test_feature_metrics.py::test_get_user_goals_skeleton_fallback PASSED [ 38%]
+tests/test_feature_metrics.py::test_upsert_user_goals_success PASSED  [ 40%]
+tests/test_feature_metrics.py::test_get_user_preferences_fallback PASSED [ 42%]
+tests/test_feature_metrics.py::test_update_user_preferences_success PASSED [ 44%]
+tests/test_feature_training_ai.py::test_adapt_plan_decrease_intensity PASSED [ 46%]
+tests/test_feature_training_ai.py::test_adapt_plan_maintain_high_rpe PASSED [ 48%]
+tests/test_feature_training_ai.py::test_adapt_plan_increase_intensity PASSED [ 50%]
+tests/test_feature_training_ai.py::test_adapt_plan_maintain_normal PASSED [ 51%]
+tests/test_feature_training_sessions.py::test_create_training_session_success PASSED [ 53%]
+tests/test_feature_training_sessions.py::test_get_upcoming_sessions_success PASSED [ 55%]
+tests/test_feature_training_sessions.py::test_instantiate_session_success PASSED [ 57%]
+tests/test_feature_training_sessions.py::test_get_training_session_unauthorized PASSED [ 59%]
+tests/test_feature_training_sessions.py::test_complete_session_success PASSED [ 61%]
+tests/test_feature_training_sessions.py::test_complete_session_invalid_rpe PASSED [ 63%]
+tests/test_feature_training_sessions.py::test_list_training_sessions_success PASSED [ 65%]
+tests/test_feature_training_sessions.py::test_get_training_session_success PASSED [ 67%]
+tests/test_feature_training_sessions.py::test_add_session_exercise_success PASSED [ 69%]
+tests/test_feature_training_sessions.py::test_log_exercise_set_success PASSED [ 71%]
+tests/test_feature_training_templates.py::test_create_training_template_success PASSED [ 73%]
+tests/test_feature_training_templates.py::test_list_training_templates_success PASSED [ 75%]
+tests/test_feature_training_templates.py::test_get_training_template_success PASSED [ 76%]
+tests/test_feature_training_templates.py::test_add_template_exercise_success PASSED [ 78%]
+tests/test_feature_training_templates.py::test_add_template_exercise_unauthorized PASSED [ 80%]
+tests/test_feature_users.py::test_delete_my_account_dev_bypass PASSED [ 82%]
+tests/test_feature_users.py::test_delete_my_account_success PASSED    [ 84%]
+tests/test_feature_users.py::test_delete_my_account_failure PASSED    [ 86%]
+tests/test_main.py::test_health_check PASSED                          [ 88%]
+tests/test_main.py::test_example_marketplace PASSED                   [ 90%]
+tests/test_main.py::test_example_training_sessions PASSED             [ 92%]
+tests/test_main.py::test_example_training_templates PASSED            [ 94%]
+tests/test_main.py::test_example_kpi_tracking PASSED                  [ 96%]
+tests/test_main.py::test_example_users PASSED                         [ 98%]
+tests/test_x_debug.py::test_debug PASSED                              [100%]
+
+============================= warnings summary =============================
+venv\Lib\site-packages\supabase\_async\auth_client.py:3
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\supabase\_async\auth_client.py:3: DeprecationWarning: The `gotrue` package is deprecated, is not going to receive updates in the future. Please, use `supabase_auth` instead.
+    from gotrue import (
+
+venv\Lib\site-packages\starlette\formparsers.py:12
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\pydantic\_internal\_config.py:284: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+====================== 52 passed, 5 warnings in 1.06s ======================

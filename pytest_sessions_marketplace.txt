@@ -1,0 +1,138 @@
+========================== test session starts ===========================
+platform win32 -- Python 3.12.2, pytest-8.2.0, pluggy-1.6.0 -- C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Tobias SIegel\SportyFY-antigravity\backend
+plugins: anyio-4.12.1
+collecting ... collected 10 items
+
+tests/test_feature_marketplace.py::test_list_marketplace_items_success PASSED
+tests/test_feature_marketplace.py::test_get_marketplace_item_success PASSED
+tests/test_feature_marketplace.py::test_create_marketplace_item_success ERROR MARKETPLACE: {'detail': 'Failed to create marketplace item: {\'code\': \'PGRST205\', \'details\': None, \'hint\': None, \'message\': "Could not find the table \'public.marketplace_items\' in the schema cache"}'}
+FAILED
+tests/test_feature_marketplace.py::test_create_order_success ERROR ORDER: {'detail': 'Failed to create order: {\'code\': \'PGRST205\', \'details\': None, \'hint\': None, \'message\': "Could not find the table \'public.marketplace_orders\' in the schema cache"}'}
+FAILED
+tests/test_feature_training_sessions.py::test_create_training_session_success PASSED
+tests/test_feature_training_sessions.py::test_get_upcoming_sessions_success PASSED
+tests/test_feature_training_sessions.py::test_instantiate_session_success ERROR INSTANTIATE: {'detail': "Failed to instantiate session: name 'client' is not defined"}
+FAILED
+tests/test_feature_training_sessions.py::test_get_training_session_unauthorized PASSED
+tests/test_feature_training_sessions.py::test_complete_session_success PASSED
+tests/test_feature_training_sessions.py::test_complete_session_invalid_rpe PASSED
+
+================================ FAILURES ================================
+__________________ test_create_marketplace_item_success __________________
+
+    def test_create_marketplace_item_success():
+        """Test creating a marketplace item with creator role."""
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        # Mock Role Check: require_role calls supabase.table("users").select("role")...
+        mock_role_resp = MagicMock()
+        mock_role_resp.data = {"role": "creator"}
+        # Mock Item Insertion
+        mock_insert_resp = MagicMock()
+        mock_insert_resp.data = [{"id": "new-item-id"}]
+    
+        # We use side_effect to return role check first, then insertion
+        # Chain for role check: table().select().eq().single().execute()
+        # Chain for insert: table().insert().execute()
+        mock_supabase.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = mock_role_resp
+        mock_supabase.table.return_value.insert.return_value.execute.return_value = mock_insert_resp
+    
+        payload = {"title": "New Program", "price": 29.99}
+        response = client.post("/api/v1/marketplace/", json=payload, headers={"Authorization": "Bearer fake-dev-token"})
+        if response.status_code != 200:
+            print("ERROR MARKETPLACE:", response.json())
+    
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_marketplace.py:95: AssertionError
+_______________________ test_create_order_success ________________________
+
+    def test_create_order_success():
+        """Test creating an order for an item."""
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        mock_response = MagicMock()
+        mock_response.data = [{"id": "order-id"}]
+        mock_supabase.table.return_value.insert.return_value.execute.return_value = mock_response
+    
+        payload = {"item_id": "item1", "quantity": 1}
+        response = client.post("/api/v1/marketplace/orders", json=payload)
+        if response.status_code != 200:
+            print("ERROR ORDER:", response.json())
+    
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_marketplace.py:113: AssertionError
+____________________ test_instantiate_session_success ____________________
+
+    def test_instantiate_session_success():
+        """Test creating a session instance from a template with exercises."""
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        # 1. Mock template fetch
+        mock_template_resp = MagicMock()
+        mock_template_resp.data = {"id": "template-uuid"}
+        # Chain for single template check
+        mock_supabase.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = mock_template_resp
+    
+        # 2. Mock exercises fetch
+        mock_ex_resp = MagicMock()
+        mock_ex_resp.data = [{"id": "ex-temp-1", "exercise_id": "pushup", "order_index": 0}]
+    
+        # 3. Mock session insert
+        mock_session_resp = MagicMock()
+        mock_session_resp.data = [{
+            "id": "new-session-uuid",
+            "trainee_id": "test-user-uuid",
+            "created_at": "2026-03-01T00:00:00Z"
+        }]
+    
+        # Setup for multiple calls
+        mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value = mock_ex_resp
+        mock_supabase.table.return_value.insert.return_value.execute.side_effect = [
+            mock_session_resp, # session header
+            MagicMock(data=[]) # exercise snapshots
+        ]
+    
+        response = client.post("/api/v1/sessions/instantiate/template-uuid")
+        if response.status_code != 200:
+            print("ERROR INSTANTIATE:", response.json())
+    
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_training_sessions.py:122: AssertionError
+============================ warnings summary ============================
+venv\Lib\site-packages\starlette\formparsers.py:12
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+venv\Lib\site-packages\supabase\_async\auth_client.py:3
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\supabase\_async\auth_client.py:3: DeprecationWarning: The `gotrue` package is deprecated, is not going to receive updates in the future. Please, use `supabase_auth` instead.
+    from gotrue import (
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\pydantic\_internal\_config.py:284: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== short test summary info =========================
+FAILED tests/test_feature_marketplace.py::test_create_marketplace_item_success - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_feature_marketplace.py::test_create_order_success - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_feature_training_sessions.py::test_instantiate_session_success - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+================ 3 failed, 7 passed, 5 warnings in 1.63s =================

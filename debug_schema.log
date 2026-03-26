@@ -1,0 +1,1 @@
+Columns in training_sessions: id, trainee_id, template_id, assigned_by, scheduled_date, status, feedback_rpe, completed_at, created_at

@@ -1,0 +1,25 @@
+=========== test session starts ============
+platform win32 -- Python 3.12.2, pytest-8.2.0, pluggy-1.6.0 -- C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Tobias SIegel\SportyFY-antigravity\backend
+plugins: anyio-4.12.1
+collecting ... collected 6 items
+
+tests/test_feature_training_templates.py::test_create_training_template PASSED [ 16%]
+tests/test_feature_training_templates.py::test_list_training_templates PASSED [ 33%]
+tests/test_feature_training_templates.py::test_get_training_template PASSED [ 50%]
+tests/test_feature_training_templates.py::test_get_training_template_not_found PASSED [ 66%]
+tests/test_feature_training_templates.py::test_add_template_exercise PASSED [ 83%]
+tests/test_feature_training_templates.py::test_add_template_exercise_unauthorized PASSED [100%]
+
+============= warnings summary =============
+venv\Lib\site-packages\starlette\formparsers.py:12
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+venv\Lib\site-packages\supabase\_async\auth_client.py:3
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\supabase\_async\auth_client.py:3: DeprecationWarning: The `gotrue` package is deprecated, is not going to receive updates in the future. Please, use `supabase_auth` instead.
+    from gotrue import (
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+====== 6 passed, 2 warnings in 0.59s =======

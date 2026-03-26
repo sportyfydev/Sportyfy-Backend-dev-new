@@ -1,0 +1,334 @@
+========================== test session starts ===========================
+platform win32 -- Python 3.12.2, pytest-8.2.0, pluggy-1.6.0 -- C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Tobias SIegel\SportyFY-antigravity\backend
+plugins: anyio-4.12.1
+collecting ... collected 48 items
+
+tests/test_database.py::test_get_supabase_singleton PASSED
+tests/test_database.py::test_get_supabase_missing_credentials PASSED
+tests/test_database.py::test_verify_connection PASSED
+tests/test_dependencies.py::test_get_current_user_dev_bypass PASSED
+tests/test_dependencies.py::test_get_current_user_valid_token PASSED
+tests/test_dependencies.py::test_get_current_user_invalid_token PASSED
+tests/test_dependencies.py::test_require_role_success PASSED
+tests/test_dependencies.py::test_require_role_forbidden PASSED
+tests/test_feature_content_library.py::test_get_exercises_success PASSED
+tests/test_feature_content_library.py::test_get_marketplace_templates_success PASSED
+tests/test_feature_content_library.py::test_get_exercises_error PASSED
+tests/test_feature_kpi_tracking.py::test_get_kpi_summary SUPABASE TYPE: <class 'unittest.mock.MagicMock'>
+FAILED
+tests/test_feature_kpi_tracking.py::test_get_exercise_progress FAILED
+tests/test_feature_marketplace.py::test_list_marketplace_items_success PASSED
+tests/test_feature_marketplace.py::test_get_marketplace_item_success PASSED
+tests/test_feature_marketplace.py::test_create_marketplace_item_success ERROR MARKETPLACE: {'detail': "Failed to create marketplace item: name 'supabase' is not defined"}
+FAILED
+tests/test_feature_marketplace.py::test_create_order_success ERROR ORDER: {'detail': "Failed to create order: name 'supabase' is not defined"}
+FAILED
+tests/test_feature_metrics.py::test_log_body_metric_success PASSED
+tests/test_feature_metrics.py::test_get_body_metrics_success PASSED
+tests/test_feature_metrics.py::test_get_user_goals_skeleton_fallback PASSED
+tests/test_feature_metrics.py::test_upsert_user_goals_success PASSED
+tests/test_feature_metrics.py::test_get_user_preferences_fallback PASSED
+tests/test_feature_metrics.py::test_update_user_preferences_success PASSED
+tests/test_feature_training_ai.py::test_adapt_plan_decrease_intensity PASSED
+tests/test_feature_training_ai.py::test_adapt_plan_maintain_high_rpe PASSED
+tests/test_feature_training_ai.py::test_adapt_plan_increase_intensity PASSED
+tests/test_feature_training_ai.py::test_adapt_plan_maintain_normal PASSED
+tests/test_feature_training_sessions.py::test_create_training_session_success PASSED
+tests/test_feature_training_sessions.py::test_get_upcoming_sessions_success PASSED
+tests/test_feature_training_sessions.py::test_instantiate_session_success PASSED
+tests/test_feature_training_sessions.py::test_get_training_session_unauthorized PASSED
+tests/test_feature_training_sessions.py::test_complete_session_success PASSED
+tests/test_feature_training_sessions.py::test_complete_session_invalid_rpe PASSED
+tests/test_feature_training_templates.py::test_create_training_template_success PASSED
+tests/test_feature_training_templates.py::test_list_training_templates_success PASSED
+tests/test_feature_training_templates.py::test_get_training_template_success PASSED
+tests/test_feature_training_templates.py::test_add_template_exercise_success FAILED
+tests/test_feature_training_templates.py::test_add_template_exercise_unauthorized PASSED
+tests/test_feature_users.py::test_delete_my_account_dev_bypass PASSED
+tests/test_feature_users.py::test_delete_my_account_success PASSED
+tests/test_feature_users.py::test_delete_my_account_failure PASSED
+tests/test_main.py::test_health_check PASSED
+tests/test_main.py::test_example_marketplace PASSED
+tests/test_main.py::test_example_training_sessions PASSED
+tests/test_main.py::test_example_training_templates PASSED
+tests/test_main.py::test_example_kpi_tracking PASSED
+tests/test_main.py::test_example_users PASSED
+tests/test_x_debug.py::test_debug overrides: [2499866900128]
+get_supabase id: 2499844553312
+route get_supabase id: 2499844553312
+PASSED
+
+================================ FAILURES ================================
+__________________________ test_get_kpi_summary __________________________
+
+    def test_get_kpi_summary():
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        # 1. Mock sessions response
+        mock_sessions_res = MagicMock()
+        mock_sessions_res.data = [{"id": "s1"}, {"id": "s2"}]
+    
+        # 2. Mock exercises response
+        mock_exercises_res = MagicMock()
+        mock_exercises_res.data = [{"id": "ex1"}]
+    
+        # 3. Mock logs (the actual volume)
+        mock_logs_res = MagicMock()
+        mock_logs_res.data = [{"actual_reps": 10, "actual_weight": 50.0}] # 500kg volume
+    
+        mock_supabase.table.return_value.select.return_value.eq.return_value.eq.return_value.execute.return_value = mock_sessions_res
+        mock_supabase.table.return_value.select.return_value.in_.return_value.execute.side_effect = [
+            mock_exercises_res,
+            mock_logs_res
+        ]
+    
+        response = client.get("/api/v1/kpi/summary")
+        if response.status_code != 200:
+            print("ERROR:", response.json())
+        assert response.status_code == 200
+    
+        data = response.json()
+>       assert data["total_workouts_completed"] == 1
+E       assert 2 == 1
+
+tests\test_feature_kpi_tracking.py:94: AssertionError
+_______________________ test_get_exercise_progress _______________________
+
+    def test_get_exercise_progress():
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        # 1. Mock sessions
+        mock_sessions = MagicMock(data=[{"id": "s1", "completed_at": "2026-03-01T10:00:00Z"}])
+        # 2. Mock exercise instances
+        mock_exercises = MagicMock(data=[{"id": "ei1", "session_id": "s1"}])
+        # 3. Mock logs
+        mock_logs = MagicMock(data=[{"session_exercise_id": "ei1", "actual_weight": 60.0}])
+    
+        mock_supabase.table.return_value.select.return_value.eq.return_value.eq.return_value.execute.return_value = mock_sessions
+        mock_supabase.table.return_value.select.return_value.eq.return_value.in_.return_value.execute.return_value = mock_exercises
+        mock_supabase.table.return_value.select.return_value.in_.return_value.execute.return_value = mock_logs
+    
+        response = client.get("/api/v1/kpi/exercise/test-ex")
+        if response.status_code != 200:
+            print("ERROR:", response.json())
+        assert response.status_code == 200
+    
+        data = response.json()
+        assert len(data) == 1
+>       assert data[0]["max_weight"] == 105.0
+E       assert 60.0 == 105.0
+
+tests\test_feature_kpi_tracking.py:120: AssertionError
+__________________ test_create_marketplace_item_success __________________
+
+    def test_create_marketplace_item_success():
+        """Test creating a marketplace item with creator role."""
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        # Mock Role Check: require_role calls supabase.table("users").select("role")...
+        mock_role_resp = MagicMock()
+        mock_role_resp.data = {"role": "creator"}
+        # Mock Item Insertion
+        mock_insert_resp = MagicMock()
+        mock_insert_resp.data = [{"id": "new-item-id"}]
+    
+        # We use side_effect to return role check first, then insertion
+        # Chain for role check: table().select().eq().single().execute()
+        # Chain for insert: table().insert().execute()
+        mock_supabase.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = mock_role_resp
+        mock_supabase.table.return_value.insert.return_value.execute.return_value = mock_insert_resp
+    
+        payload = {"title": "New Program", "price": 29.99}
+        response = client.post("/api/v1/marketplace/", json=payload, headers={"Authorization": "Bearer fake-dev-token"})
+        if response.status_code != 200:
+            print("ERROR MARKETPLACE:", response.json())
+    
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_marketplace.py:95: AssertionError
+_______________________ test_create_order_success ________________________
+
+    def test_create_order_success():
+        """Test creating an order for an item."""
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        mock_response = MagicMock()
+        mock_response.data = [{"id": "order-id"}]
+        mock_supabase.table.return_value.insert.return_value.execute.return_value = mock_response
+    
+        payload = {"item_id": "item1", "quantity": 1}
+        response = client.post("/api/v1/marketplace/orders", json=payload)
+        if response.status_code != 200:
+            print("ERROR ORDER:", response.json())
+    
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_marketplace.py:113: AssertionError
+___________________ test_add_template_exercise_success ___________________
+
+    def test_add_template_exercise_success():
+        """Test adding an exercise to a template blueprint."""
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        # OWNERSHIP CHECK MOCK
+        mock_owner_resp = MagicMock()
+        mock_owner_resp.data = {"owner_id": "test-user-uuid"}
+        # table().select().eq().single().execute()
+        mock_supabase.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = mock_owner_resp
+    
+        # INSERT MOCK
+        mock_insert_resp = MagicMock()
+        mock_insert_resp.data = [{"id": "ex-uuid"}]
+        # table().insert().execute()
+        mock_supabase.table.return_value.insert.return_value.execute.return_value = mock_insert_resp
+    
+        payload = {"exercise_id": "pushup", "target_reps": 10, "order_index": 0}
+>       response = client.post("/api/v1/templates/t1/exercises", json=payload)
+
+tests\test_feature_training_templates.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+venv\Lib\site-packages\starlette\testclient.py:633: in post
+    return super().post(
+venv\Lib\site-packages\httpx\_client.py:1145: in post
+    return self.request(
+venv\Lib\site-packages\starlette\testclient.py:516: in request
+    return super().request(
+venv\Lib\site-packages\httpx\_client.py:827: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+venv\Lib\site-packages\httpx\_client.py:1015: in _send_single_request
+    response = transport.handle_request(request)
+venv\Lib\site-packages\starlette\testclient.py:398: in handle_request
+    raise exc
+venv\Lib\site-packages\starlette\testclient.py:395: in handle_request
+    portal.call(self.app, scope, receive, send)
+venv\Lib\site-packages\anyio\from_thread.py:334: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+..\..\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+..\..\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:259: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:123: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+venv\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+venv\Lib\site-packages\starlette\middleware\cors.py:85: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:65: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:64: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:756: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:776: in app
+    await route.handle(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:297: in handle
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:77: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:64: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:72: in app
+    response = await func(request)
+venv\Lib\site-packages\fastapi\routing.py:296: in app
+    content = await serialize_response(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def serialize_response(
+        *,
+        field: Optional[ModelField] = None,
+        response_content: Any,
+        include: Optional[IncEx] = None,
+        exclude: Optional[IncEx] = None,
+        by_alias: bool = True,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+        is_coroutine: bool = True,
+    ) -> Any:
+        if field:
+            errors = []
+            if not hasattr(field, "serialize"):
+                # pydantic v1
+                response_content = _prepare_response_content(
+                    response_content,
+                    exclude_unset=exclude_unset,
+                    exclude_defaults=exclude_defaults,
+                    exclude_none=exclude_none,
+                )
+            if is_coroutine:
+                value, errors_ = field.validate(response_content, {}, loc=("response",))
+            else:
+                value, errors_ = await run_in_threadpool(
+                    field.validate, response_content, {}, loc=("response",)
+                )
+            if isinstance(errors_, list):
+                errors.extend(errors_)
+            elif errors_:
+                errors.append(errors_)
+            if errors:
+>               raise ResponseValidationError(
+                    errors=_normalize_errors(errors), body=response_content
+                )
+E               fastapi.exceptions.ResponseValidationError: 4 validation errors:
+E                 {'type': 'missing', 'loc': ('response', 'exercise_id'), 'msg': 'Field required', 'input': {'id': 'ex-uuid'}}
+E                 {'type': 'missing', 'loc': ('response', 'order_index'), 'msg': 'Field required', 'input': {'id': 'ex-uuid'}}
+E                 {'type': 'missing', 'loc': ('response', 'template_id'), 'msg': 'Field required', 'input': {'id': 'ex-uuid'}}
+E                 {'type': 'missing', 'loc': ('response', 'created_at'), 'msg': 'Field required', 'input': {'id': 'ex-uuid'}}
+
+venv\Lib\site-packages\fastapi\routing.py:155: ResponseValidationError
+============================ warnings summary ============================
+venv\Lib\site-packages\supabase\_async\auth_client.py:3
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\supabase\_async\auth_client.py:3: DeprecationWarning: The `gotrue` package is deprecated, is not going to receive updates in the future. Please, use `supabase_auth` instead.
+    from gotrue import (
+
+venv\Lib\site-packages\starlette\formparsers.py:12
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\pydantic\_internal\_config.py:284: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== short test summary info =========================
+FAILED tests/test_feature_kpi_tracking.py::test_get_kpi_summary - assert 2 == 1
+FAILED tests/test_feature_kpi_tracking.py::test_get_exercise_progress - assert 60.0 == 105.0
+FAILED tests/test_feature_marketplace.py::test_create_marketplace_item_success - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_feature_marketplace.py::test_create_order_success - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_feature_training_templates.py::test_add_template_exercise_success - fastapi.exceptions.ResponseValidationError: 4 validation errors:
+  {'type': 'missing', 'loc': ('response', 'exercise_id'), 'msg': 'Field required', 'input': {'id': 'ex-uuid'}}
+  {'type': 'missing', 'loc': ('response', 'order_index'), 'msg': 'Field required', 'input': {'id': 'ex-uuid'}}
+  {'type': 'missing', 'loc': ('response', 'template_id'), 'msg': 'Field required', 'input': {'id': 'ex-uuid'}}
+  {'type': 'missing', 'loc': ('response', 'created_at'), 'msg': 'Field required', 'input': {'id': 'ex-uuid'}}
+================ 5 failed, 43 passed, 5 warnings in 1.21s ================

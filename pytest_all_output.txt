@@ -1,0 +1,223 @@
+========================== test session starts ===========================
+platform win32 -- Python 3.12.2, pytest-8.2.0, pluggy-1.6.0 -- C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Tobias SIegel\SportyFY-antigravity\backend
+plugins: anyio-4.12.1
+collecting ... collected 47 items
+
+tests/test_database.py::test_get_supabase_singleton PASSED
+tests/test_database.py::test_get_supabase_missing_credentials PASSED
+tests/test_database.py::test_verify_connection PASSED
+tests/test_dependencies.py::test_get_current_user_dev_bypass PASSED
+tests/test_dependencies.py::test_get_current_user_valid_token PASSED
+tests/test_dependencies.py::test_get_current_user_invalid_token PASSED
+tests/test_dependencies.py::test_require_role_success PASSED
+tests/test_dependencies.py::test_require_role_forbidden PASSED
+tests/test_feature_content_library.py::test_get_exercises_success PASSED
+tests/test_feature_content_library.py::test_get_marketplace_templates_success PASSED
+tests/test_feature_content_library.py::test_get_exercises_error PASSED
+tests/test_feature_kpi_tracking.py::test_get_kpi_summary ERROR: {'detail': 'Failed to fetch KPI summary: {\'code\': \'22P02\', \'details\': None, \'hint\': None, \'message\': \'invalid input syntax for type uuid: "test-user-uuid"\'}'}
+FAILED
+tests/test_feature_kpi_tracking.py::test_get_exercise_progress ERROR: {'detail': 'Failed to fetch exercise progress: {\'code\': \'22P02\', \'details\': None, \'hint\': None, \'message\': \'invalid input syntax for type uuid: "test-user-uuid"\'}'}
+FAILED
+tests/test_feature_marketplace.py::test_list_marketplace_items_success PASSED
+tests/test_feature_marketplace.py::test_get_marketplace_item_success PASSED
+tests/test_feature_marketplace.py::test_create_marketplace_item_success FAILED
+tests/test_feature_marketplace.py::test_create_order_success FAILED
+tests/test_feature_metrics.py::test_log_body_metric_success PASSED
+tests/test_feature_metrics.py::test_get_body_metrics_success PASSED
+tests/test_feature_metrics.py::test_get_user_goals_skeleton_fallback PASSED
+tests/test_feature_metrics.py::test_upsert_user_goals_success PASSED
+tests/test_feature_metrics.py::test_get_user_preferences_fallback PASSED
+tests/test_feature_metrics.py::test_update_user_preferences_success PASSED
+tests/test_feature_training_ai.py::test_adapt_plan_decrease_intensity PASSED
+tests/test_feature_training_ai.py::test_adapt_plan_maintain_high_rpe PASSED
+tests/test_feature_training_ai.py::test_adapt_plan_increase_intensity PASSED
+tests/test_feature_training_ai.py::test_adapt_plan_maintain_normal PASSED
+tests/test_feature_training_sessions.py::test_create_training_session_success PASSED
+tests/test_feature_training_sessions.py::test_get_upcoming_sessions_success PASSED
+tests/test_feature_training_sessions.py::test_instantiate_session_success FAILED
+tests/test_feature_training_sessions.py::test_get_training_session_unauthorized PASSED
+tests/test_feature_training_sessions.py::test_complete_session_success PASSED
+tests/test_feature_training_sessions.py::test_complete_session_invalid_rpe PASSED
+tests/test_feature_training_templates.py::test_create_training_template_success PASSED
+tests/test_feature_training_templates.py::test_list_training_templates_success PASSED
+tests/test_feature_training_templates.py::test_get_training_template_success PASSED
+tests/test_feature_training_templates.py::test_add_template_exercise_success FAILED
+tests/test_feature_training_templates.py::test_add_template_exercise_unauthorized PASSED
+tests/test_feature_users.py::test_delete_my_account_dev_bypass PASSED
+tests/test_feature_users.py::test_delete_my_account_success PASSED
+tests/test_feature_users.py::test_delete_my_account_failure PASSED
+tests/test_main.py::test_health_check PASSED
+tests/test_main.py::test_example_marketplace PASSED
+tests/test_main.py::test_example_training_sessions PASSED
+tests/test_main.py::test_example_training_templates PASSED
+tests/test_main.py::test_example_kpi_tracking PASSED
+tests/test_main.py::test_example_users PASSED
+
+================================ FAILURES ================================
+__________________________ test_get_kpi_summary __________________________
+
+    def test_get_kpi_summary():
+        response = client.get("/api/v1/kpi/summary")
+        if response.status_code != 200:
+            print("ERROR:", response.json())
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_kpi_tracking.py:70: AssertionError
+_______________________ test_get_exercise_progress _______________________
+
+    def test_get_exercise_progress():
+        response = client.get("/api/v1/kpi/exercise/test-ex")
+        if response.status_code != 200:
+            print("ERROR:", response.json())
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_kpi_tracking.py:81: AssertionError
+__________________ test_create_marketplace_item_success __________________
+
+    def test_create_marketplace_item_success():
+        """Test creating a marketplace item with creator role."""
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        # Mock Role Check: require_role calls supabase.table("users").select("role")...
+        mock_role_resp = MagicMock()
+        mock_role_resp.data = {"role": "creator"}
+        # Mock Item Insertion
+        mock_insert_resp = MagicMock()
+        mock_insert_resp.data = [{"id": "new-item-id"}]
+    
+        # We use side_effect to return role check first, then insertion
+        # Chain for role check: table().select().eq().single().execute()
+        # Chain for insert: table().insert().execute()
+        mock_supabase.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = mock_role_resp
+        mock_supabase.table.return_value.insert.return_value.execute.return_value = mock_insert_resp
+    
+        payload = {"title": "New Program", "price": 29.99}
+        response = client.post("/api/v1/marketplace/", json=payload, headers={"Authorization": "Bearer fake-dev-token"})
+    
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_marketplace.py:93: AssertionError
+_______________________ test_create_order_success ________________________
+
+    def test_create_order_success():
+        """Test creating an order for an item."""
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        mock_response = MagicMock()
+        mock_response.data = [{"id": "order-id"}]
+        mock_supabase.table.return_value.insert.return_value.execute.return_value = mock_response
+    
+        payload = {"item_id": "item1", "quantity": 1}
+        response = client.post("/api/v1/marketplace/orders", json=payload)
+    
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_marketplace.py:109: AssertionError
+____________________ test_instantiate_session_success ____________________
+
+    def test_instantiate_session_success():
+        """Test creating a session instance from a template with exercises."""
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        # 1. Mock template fetch
+        mock_template_resp = MagicMock()
+        mock_template_resp.data = {"id": "template-uuid"}
+        # Chain for single template check
+        mock_supabase.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = mock_template_resp
+    
+        # 2. Mock exercises fetch
+        mock_ex_resp = MagicMock()
+        mock_ex_resp.data = [{"id": "ex-temp-1", "exercise_id": "pushup", "order_index": 0}]
+    
+        # 3. Mock session insert
+        mock_session_resp = MagicMock()
+        mock_session_resp.data = [{
+            "id": "new-session-uuid",
+            "trainee_id": "test-user-uuid",
+            "created_at": "2026-03-01T00:00:00Z"
+        }]
+    
+        # Setup for multiple calls
+        mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value = mock_ex_resp
+        mock_supabase.table.return_value.insert.return_value.execute.side_effect = [
+            mock_session_resp, # session header
+            MagicMock(data=[]) # exercise snapshots
+        ]
+    
+        response = client.post("/api/v1/sessions/instantiate/template-uuid")
+    
+>       assert response.status_code == 200
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_feature_training_sessions.py:120: AssertionError
+___________________ test_add_template_exercise_success ___________________
+
+    def test_add_template_exercise_success():
+        """Test adding an exercise to a template blueprint."""
+        mock_supabase = MagicMock()
+        app.dependency_overrides[get_supabase] = lambda: mock_supabase
+    
+        # OWNERSHIP CHECK MOCK
+        mock_owner_resp = MagicMock()
+        mock_owner_resp.data = {"owner_id": "test-user-uuid"}
+        # table().select().eq().single().execute()
+        mock_supabase.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = mock_owner_resp
+    
+        # INSERT MOCK
+        mock_insert_resp = MagicMock()
+        mock_insert_resp.data = [{"id": "ex-uuid"}]
+        # table().insert().execute()
+        mock_supabase.table.return_value.insert.return_value.execute.return_value = mock_insert_resp
+    
+        payload = {"exercise_id": "pushup", "target_reps": 10}
+        response = client.post("/api/v1/templates/t1/exercises", json=payload)
+    
+>       assert response.status_code == 200
+E       assert 422 == 200
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests\test_feature_training_templates.py:131: AssertionError
+============================ warnings summary ============================
+venv\Lib\site-packages\supabase\_async\auth_client.py:3
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\supabase\_async\auth_client.py:3: DeprecationWarning: The `gotrue` package is deprecated, is not going to receive updates in the future. Please, use `supabase_auth` instead.
+    from gotrue import (
+
+venv\Lib\site-packages\starlette\formparsers.py:12
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+venv\Lib\site-packages\pydantic\_internal\_config.py:284
+  C:\Users\Tobias SIegel\SportyFY-antigravity\backend\venv\Lib\site-packages\pydantic\_internal\_config.py:284: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== short test summary info =========================
+FAILED tests/test_feature_kpi_tracking.py::test_get_kpi_summary - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_feature_kpi_tracking.py::test_get_exercise_progress - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_feature_marketplace.py::test_create_marketplace_item_success - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_feature_marketplace.py::test_create_order_success - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_feature_training_sessions.py::test_instantiate_session_success - assert 500 == 200
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+FAILED tests/test_feature_training_templates.py::test_add_template_exercise_success - assert 422 == 200
+ +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+================ 6 failed, 41 passed, 5 warnings in 1.82s ================
