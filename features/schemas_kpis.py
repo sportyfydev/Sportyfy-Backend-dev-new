@@ -19,6 +19,7 @@ class KPIDefinitionBase(BaseModel):
     tracking_type: str
     visualization: Optional[str] = 'line'  # 'line' | 'bar' | 'progress'
     linked_exercise_id: Optional[UUID] = None
+    query_config: Optional[dict] = None
 
 class KPIDefinitionCreate(KPIDefinitionBase):
     user_id: Optional[UUID] = None
@@ -39,6 +40,9 @@ class KPITargetBase(BaseModel):
     start_date: date = Field(default_factory=date.today)
     end_date: Optional[date] = None
     is_pinned: bool = False
+    visualization: Optional[str] = 'line'  # 'line' | 'bar' | 'progress'
+    label: Optional[str] = None  # Custom title for the dashboard
+    aggregation_count: Optional[int] = 8
 
 class KPITargetCreate(KPITargetBase):
     user_id: Optional[UUID] = None
@@ -73,9 +77,21 @@ class KPIDashboardItem(BaseModel):
     name: str
     category: str
     unit: str
-    visualization: str = 'line'  # 'line' | 'bar' | 'progress'
+    visualization: Optional[str] = 'line'  # 'line' | 'bar' | 'progress'
     target: Optional[KPITargetResponse] = None
     current_value: float = 0.0
     progress_percentage: float = 0.0
     trend_direction: str = "stable" # up, down, stable
     history: List[KPIMeasurementResponse] = []
+
+class KPIPreviewRequest(BaseModel):
+    query_config: dict
+    tracking_type: str = "latest"
+    cycle_period: Optional[str] = None
+    target_mode: Optional[str] = "cyclic"
+    start_date: Optional[str] = None
+
+class KPIPreviewResponse(BaseModel):
+    current_value: float
+    trend_direction: str
+    history: List[KPIMeasurementResponse]
